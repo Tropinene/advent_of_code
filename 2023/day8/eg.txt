@@ -1,0 +1,10 @@
+LR
+
+YAA = (KKB, XXX)
+KKB = (XXX, YYZ)
+YYZ = (KKB, XXX)
+CCA = (CCB, XXX)
+CCB = (BBC, BBC)
+BBC = (QQZ, QQZ)
+QQZ = (CCB, CCB)
+XXX = (XXX, XXX)
