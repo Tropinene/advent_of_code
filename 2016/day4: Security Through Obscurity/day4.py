@@ -1,3 +1,8 @@
+# input_str: xx-..-yy-zz[k]
+# [zz] is room numbers. [k] is the most frequent characters in the fronted part (before -zz[k])
+# part1: sum up all the room numbers reach the conditions
+# part2: the fronted part is Caesar cipher with offset of 1. find out the room number which means "North Pole objects"
+
 import re
 
 

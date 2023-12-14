@@ -1,3 +1,8 @@
+# step0: MD5[salt+idx]
+# part1: if md5 starts with 00000. get the first number after 0s. repeat for 6 times
+# part2: 00000xy => x means the place of y
+
+
 import hashlib
 
 

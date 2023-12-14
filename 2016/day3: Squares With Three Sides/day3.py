@@ -1,3 +1,5 @@
+# part1: check whether the input 3 numbers can be a triangle
+
 if __name__ == '__main__':
     file_path = './input.txt'
     data = open(file_path, 'r').readlines()

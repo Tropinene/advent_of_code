@@ -1,3 +1,6 @@
+# part1: the most common character in every column
+# part2: the least common character in every column
+
 from collections import Counter
 
 

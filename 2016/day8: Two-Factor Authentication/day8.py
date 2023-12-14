@@ -1,3 +1,7 @@
+# a pixels matrix with three kinds of instructions [rect | rotate row | rotate column]
+# part1: count shining pixels
+# part2: figure out the characters showed by matrix
+
 import copy
 import re
 

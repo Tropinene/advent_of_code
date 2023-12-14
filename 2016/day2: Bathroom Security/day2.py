@@ -1,3 +1,8 @@
+# give you a number map and follow the instructions
+# if reach the edge of the map or the instruction end, stop and get the number you are
+# part1: a rectangle map
+# part2: a special map
+
 import re
 
 

@@ -1,3 +1,8 @@
+# step1: split the line into two parts. outer is str out of [], inner is str inside []
+# step2: check both parts
+# part1: outer should have ABBA, inner cannot have ABBA
+# part2: outer should have ABA, inner should have BAB. (like [zvz] for outer, [vzv] for inner)
+
 def has_symmetric_four_chars(input_string, n):
     length = len(input_string)
     flag, res = False, []
