@@ -1,3 +1,6 @@
+# part1: count the consecutive number
+# part2: count the number  s[i] = s[i+len/2]
+
 if __name__ == '__main__':
     line = open("input.txt", 'r').readline().strip()
 

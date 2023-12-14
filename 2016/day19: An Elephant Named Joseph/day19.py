@@ -2,11 +2,13 @@
 
 if __name__ == '__main__':
     elves = []
-    for i in range(3005290):
+    for i in range(3001330):
         elves.append(i+1)
 
     cnt = 0
     while len(elves) > 1:
+        if len(elves) % 10000 == 0:
+            print(len(elves))
         if cnt == len(elves)-1:
             elves.pop(0)
         else:
