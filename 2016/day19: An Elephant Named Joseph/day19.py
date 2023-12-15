@@ -20,3 +20,24 @@ if __name__ == '__main__':
             cnt = 0
 
     print(f"[Part1] : {elves[0]}")
+
+    elves = []
+    for i in range(3001330):
+        elves.append(i + 1)
+
+    elfCounter = 0
+    while len(elves) > 1:
+        if len(elves) % 10000 == 0:
+            print(len(elves))
+        removeElfNo = len(elves) // 2 + elfCounter
+        if removeElfNo > len(elves) - 1:
+            removeElfNo -= len(elves)
+        else:
+            elfCounter += 1
+
+        elves.pop(removeElfNo)
+        if elfCounter >= len(elves):
+            elfCounter = 0
+
+    print(f"[Part2] : {elves[0]}")
+
