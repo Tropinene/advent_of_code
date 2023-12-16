@@ -1,5 +1,6 @@
 # the same cpu in day12 but add a new instruction tpl
 # part1: a start with 7, what is the value of a after running
+# part2: a strat with 12
 
 def cpu(reg):
     instros = open("input.txt", "r").readlines()
