@@ -29,6 +29,8 @@ def dance(s, mvs):
             a, b = m[1:].split('/')
             idx_a, idx_b = s.index(a), s.index(b)
             s = swap_by_position(s, idx_a, idx_b)
+        else:
+            pass
 
     return s
 
