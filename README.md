@@ -6,9 +6,21 @@ The solutions do not optimize any given parameter: They are not the shortest pos
 ## To Do 
 I mean something in this repo but not finished...
 * 2015
-  - [ ] day 9
+  - [x] day 9
+  - [ ] day 13
   - [ ] day 19 part2
+  - [ ] day 22
 * 2016
   - [ ] day 3 part2
+  - [ ] day 9
+  - [ ] day 10
+  - [ ] day 11
+  - [ ] day 13
+  - [ ] day 10
+  - [ ] day 17
+  - [ ] day 22 part2
+* 2017
+  - [ ] day18 part2
+  - [ ] day21 - 25
 * 2022
   - [ ] day 8
