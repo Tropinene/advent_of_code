@@ -5,7 +5,7 @@ def stimulate(particles, is_part2):
     destroyed = []
     for _ in range(1000):
         min_dis, closest = None, None
-        distribute  = {}
+        distribute = {}
         for idx, particle in enumerate(particles):
             particle[1] = [x + y for x, y in zip(particle[1], particle[2])]
             particle[0] = [x + y for x, y in zip(particle[0], particle[1])]
@@ -35,7 +35,6 @@ def stimulate(particles, is_part2):
         return closest
 
 
-
 if __name__ == '__main__':
     data = open('input.txt', 'r').readlines()
     particles = []
@@ -49,5 +48,3 @@ if __name__ == '__main__':
     print(f"[Part1] : {p1}")
     p2 = stimulate(particles, True)
     print(f"[Part2] : {p2}")
-
-    

@@ -1,35 +1,25 @@
-def getData(file):
-    with open(file, 'r') as f:
-        lines = f.readlines()
-        f.close()
-    return lines
+import itertools
+import re
 
 
 if __name__ == '__main__':
-    file_path = './eg.txt'
-    lines = getData(file_path)
+    towns = set()
+    distances = {}
 
-    cityMap = {}
-    for line in lines:
-        line = line.strip()
-        tmp = line.split(' = ')
-        info = tmp[0].strip()
-        dis = int(tmp[1].strip())
+    data = open('input.txt', 'r').readlines()
+    for line in data:
+        town1, town2, distance = re.match(r'(\w+) to (\w+) = (\d+)', line.strip()).groups()
+        towns.add(town1)
+        towns.add(town2)
+        town1, town2 = sorted((town1, town2))
+        distances[(town1, town2)] = int(distance)
 
-        tmp = info.split(' ')
-        city1 = tmp[0].strip()
-        city2 = tmp[2].strip()
-        if cityMap.get(city1):
-            cityMap.get(city1)[city2] = dis
-        else:
-            cityMap[city1] = {city2: dis}
-        if cityMap.get(city2):
-            cityMap.get(city2)[city1] = dis
-        else:
-            cityMap[city2] = {city1: dis}
+    options = []
+    for order in itertools.permutations(towns):
+        path = zip(order, order[1:])
+        path_distances = [distances[tuple(sorted((town1, town2)))] for town1, town2 in path]
+        total_distance = sum(path_distances)
+        options.append(total_distance)
 
-    shortest = float('inf')
-    cities = cityMap.keys()
-    for c in cities:
-        pass
-
+    print(f"[Part1] : {min(options)}")
+    print(f"[Part2] : {max(options)}")

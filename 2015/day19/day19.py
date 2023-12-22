@@ -8,7 +8,7 @@ def findall(text, sub):
 
 
 if __name__ == '__main__':
-    lines = open('./eg.txt', 'r').readlines()
+    lines = open('./input.txt', 'r').readlines()
     s = lines[-1].strip()
     dic = {}
     for line in lines[:-2]:
