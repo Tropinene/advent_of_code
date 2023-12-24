@@ -1,7 +1,8 @@
 import re
 from collections import Counter
 
-def procss_logs(logs):
+
+def process_logs(logs):
     guard = {}
     id, start, end = -1, '', ''
     for log in logs:
@@ -25,24 +26,31 @@ def procss_logs(logs):
 
 if __name__ == '__main__':
     data = open('input.txt', 'r').readlines()
-    info = procss_logs(sorted(data))
+    info = process_logs(sorted(data))
 
     sleep_time, max_id = -1, -1
+    sleep_minute = {}
     for idx, guard in info.items():
         time = 0
         for i in guard:
             _, s, e = i.split()
             s, e = int(s.split(':')[1]), int(e.split(':')[1])
             time += e - s
+
+            if sleep_minute.get(idx):
+                sleep_minute[idx] += Counter(range(s, e))
+            else:
+                sleep_minute[idx] = Counter(range(s, e))
         if time > sleep_time:
             max_id, sleep_time = idx, time
 
-    target = info[max_id]
-    run_dates, sleep_time_cnt = [], Counter()
-    for i in target:
-        date, s, e = i.split()
-        s, e = int(s.split(':')[1]), int(e.split(':')[1])
-        sleep_time_cnt += Counter(range(s, e))
-    most_frequent = sleep_time_cnt.most_common(1)[0][0]
+    target = sleep_minute[max_id]
+    most_frequent = target.most_common(1)[0][0]
     print(f"[Part1] : {most_frequent * max_id}")
 
+    most_frequent_minute, frequent_id = -1, -1
+    for idx, guard in sleep_minute.items():
+        if guard.most_common(1)[0][0] > most_frequent_minute:
+            frequent_id, most_frequent_minute = idx, guard.most_common(1)[0][0]
+
+    print(f"[Part2] : {most_frequent_minute * frequent_id}")
