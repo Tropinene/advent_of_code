@@ -16,16 +16,16 @@ if __name__ == '__main__':
             p1 += 1
     print(f'[Part1] : {p1}')
 
-    vertical = [[], [], []]
-    p2 = 0
-    for line in data:
-        lst = [int(x) for x in line.strip().split()]
-        for i in range(3):
-            vertical[i].append(lst[i])
-    for i in range(3):
-        cur = vertical[i]
-        for i in range(len(cur)):
-            for j in range(i, len(cur)):
-                in_range = sum(1 for num in cur[j+1:] if abs(i-j) < num < i+j)
-                p2 += in_range
-    print(f'[Part2] : {p2}')
+    # vertical = [[], [], []]
+    # p2 = 0
+    # for line in data:
+    #     lst = [int(x) for x in line.strip().split()]
+    #     for i in range(3):
+    #         vertical[i].append(lst[i])
+    # for i in range(3):
+    #     cur = vertical[i]
+    #     for i in range(len(cur)):
+    #         for j in range(i, len(cur)):
+    #             in_range = sum(1 for num in cur[j+1:] if abs(cur[i]-cur[j]) < num < cur[i]+cur[j])
+    #             p2 += in_range
+    # print(f'[Part2] : {p2}')
