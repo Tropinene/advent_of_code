@@ -1,19 +1,23 @@
-import copy
-
-
-def arrangement(ori_lst: list) -> list:
-    res = [None] * len(ori_lst)
-    for val in ori_lst:
-        next_lst = copy.deepcopy(ori_lst)
-
+def parse_file() -> list:
+    data = list(map(int, open('input.txt', 'r').readlines()))
+    res = []
+    for idx, val in enumerate(data):
+        res.append((idx, val))
     return res
 
 
+def mix(nums: list) -> list:
+    l = len(nums)
+    for idx, val in nums:
+        new_idx = (idx + val + l) % l
+        print(nums)
+        quit()
+
+
 def main():
-    origin_file = [int(x.strip()) for x in open('input.txt', 'r').readlines()]
-    print(origin_file)
-    print(arrangement(origin_file))
-    # todo
+    numbers = parse_file()
+    mix(numbers)
+
 
 if __name__ == '__main__':
     main()
