@@ -1,31 +1,27 @@
 # part1: check whether the input 3 numbers can be a triangle
 def is_triangle(sides: list) -> bool:
-    # if lst[0] + lst[1] > lst[2] and lst[1] + lst[2] > lst[0] and lst[0] + lst[2] > lst[1]:
-    if abs(lst[0] - lst[1]) < lst[2] < lst[0] + lst[1]:
-        return True
+    sides = sorted(sides)
+    return sides[0] + sides[1] > sides[2]
 
 
 if __name__ == '__main__':
     file_path = './input.txt'
     data = open(file_path, 'r').readlines()
+    lsts = []
 
     p1 = 0
     for line in data:
-        lst = [int(x) for x in line.strip().split()]
+        lsts.append([int(x) for x in line.strip().split()])
+
+    for lst in lsts:
         if is_triangle(lst):
             p1 += 1
     print(f'[Part1] : {p1}')
 
-    # vertical = [[], [], []]
-    # p2 = 0
-    # for line in data:
-    #     lst = [int(x) for x in line.strip().split()]
-    #     for i in range(3):
-    #         vertical[i].append(lst[i])
-    # for i in range(3):
-    #     cur = vertical[i]
-    #     for i in range(len(cur)):
-    #         for j in range(i, len(cur)):
-    #             in_range = sum(1 for num in cur[j+1:] if abs(cur[i]-cur[j]) < num < cur[i]+cur[j])
-    #             p2 += in_range
-    # print(f'[Part2] : {p2}')
+    p2 = 0
+    t_ = [i[0] for i in lsts] + [i[1] for i in lsts] + [i[2] for i in lsts]
+    for i in range(len(t_))[::3]:
+        lst = [t_[i], t_[i + 1], t_[i + 2]]
+        if is_triangle(lst):
+            p2 += 1
+    print(f'[Part2] : {p2}')
