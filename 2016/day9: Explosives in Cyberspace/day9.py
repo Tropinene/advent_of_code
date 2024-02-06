@@ -22,7 +22,6 @@ def cnt_length(s: str) -> int:
 
 
 def cnt_length2(s: str) -> int:
-    print(s)
     cur_ = 0
     left = s.find('(', cur_)
     if left == -1:
@@ -31,14 +30,13 @@ def cnt_length2(s: str) -> int:
 
     char_num, repeat_times = s[left + 1:right].split('x')
     char_num, repeat_times = int(char_num), int(repeat_times)
-    # print(s[:left])
-    # print(s[right+char_num+1:])
-    return cnt_length2(s[:left]) + cnt_length2(s[right+1:right+char_num+1]) + cnt_length2(s[right+char_num+1:])
+
+    return left + repeat_times * cnt_length2(s[right+1:right+char_num+1]) + cnt_length2(s[right+char_num+1:])
 
 
 def main():
-    # line = open('input.txt', 'r').readline().strip()
-    line = "(6x1)(1x3)A"
+    line = open('input.txt', 'r').readline().strip()
+
     p1 = cnt_length(line)
     print(f"[Part1] : {p1}")
 
