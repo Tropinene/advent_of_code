@@ -1,4 +1,4 @@
-def energize_tiles(grid):
+def energize_tiles(grid, start_x, start_y, start_dir):
     rows, cols = len(grid), len(grid[0])
     energized = [[False] * cols for _ in range(rows)]
 
@@ -15,8 +15,8 @@ def energize_tiles(grid):
     def in_bounds(x, y):
         return 0 <= x < rows and 0 <= y < cols
 
-    # 开始从左上角向右传播光束
-    queue = [(0, 0, 0)]  # (row, col, direction)
+    # 开始从指定位置传播光束
+    queue = [(start_x, start_y, start_dir)]  # (row, col, direction)
     visited = set()  # 记录已经访问过的状态
 
     while queue:
@@ -56,25 +56,46 @@ def energize_tiles(grid):
             # 根据当前方向移动到下一个格子
             x += directions[dir_index][0]
             y += directions[dir_index][1]
-    # 打印格子的状态图
-    # for row in energized:
-    #     for g in row:
-    #         if g:
-    #             print('#', end='')
-    #         else:
-    #             print('.', end='')
-    #     print()
+
     # 计算激活的格子数
     return sum(sum(row) for row in energized)
 
 
-def main():
-    with open('input.txt', 'r') as file:
-        grid = [line.strip() for line in file.readlines()]
+def find_max_energized(grid):
+    rows, cols = len(grid), len(grid[0])
+    max_energized = 0
 
-    # 计算并打印激活的格子数
-    result = energize_tiles(grid)
+    # 从顶部边界开始
+    for y in range(cols):
+        for start_dir in range(4):
+            max_energized = max(max_energized, energize_tiles(grid, 0, y, start_dir))
+
+    # 从底部边界开始
+    for y in range(cols):
+        for start_dir in range(4):
+            max_energized = max(max_energized, energize_tiles(grid, rows - 1, y, start_dir))
+
+    # 从左侧边界开始
+    for x in range(rows):
+        for start_dir in range(4):
+            max_energized = max(max_energized, energize_tiles(grid, x, 0, start_dir))
+
+    # 从右侧边界开始
+    for x in range(rows):
+        for start_dir in range(4):
+            max_energized = max(max_energized, energize_tiles(grid, x, cols - 1, start_dir))
+
+    return max_energized
+
+
+def main():
+    grid = [line.strip() for line in open('input.txt', 'r').readlines()]
+
+    result = energize_tiles(grid, 0, 0, 0)
     print(f"[Part1] : {result}")
+
+    result = find_max_energized(grid)
+    print(f"[Part2] : {result}")
 
 
 if __name__ == '__main__':
