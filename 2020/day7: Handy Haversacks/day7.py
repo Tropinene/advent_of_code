@@ -1,5 +1,5 @@
-from collections import defaultdict, deque
 import re
+from collections import defaultdict, deque
 
 
 # Function to parse a rule and return a tuple (outer_bag, list of (inner_bag, count))
@@ -11,7 +11,7 @@ def parse_rule(rule):
     return outer_bag, [(int(count), bag) for count, bag in inner_bags]
 
 
-# Function to build a reverse graph from the rules
+# Function to build a reverse graph from the rules (for part 1)
 def build_reverse_graph(rules):
     graph = defaultdict(list)
     for rule in rules:
@@ -21,7 +21,7 @@ def build_reverse_graph(rules):
     return graph
 
 
-# Function to perform BFS to find all bags that can eventually contain a shiny gold bag
+# Function to perform BFS to find all bags that can eventually contain a shiny gold bag (part 1)
 def count_outermost_bags(graph, target_bag):
     visited = set()
     queue = deque([target_bag])
@@ -36,17 +36,45 @@ def count_outermost_bags(graph, target_bag):
     return len(visited)
 
 
+# Function to build the graph for Part 2 (regular graph, not reversed)
+def build_graph(rules):
+    graph = {}
+    for rule in rules:
+        outer_bag, inner_bags = parse_rule(rule)
+        graph[outer_bag] = inner_bags
+    return graph
+
+
+# Recursive function to calculate the total number of bags inside a given bag (part 2)
+def count_bags(bag, graph, memo):
+    if bag in memo:
+        return memo[bag]
+
+    total = 0
+    for count, inner_bag in graph[bag]:
+        total += count + count * count_bags(inner_bag, graph, memo)
+
+    memo[bag] = total
+    return total
+
+
 def main():
     # Read the input from the file
     with open('input.txt') as f:
         rules = f.read().strip().split("\n")
 
-    # Build the reverse graph
-    graph = build_reverse_graph(rules)
+    # Part 1: Build the reverse graph and count how many bags can contain a shiny gold bag
+    reverse_graph = build_reverse_graph(rules)
+    part1_result = count_outermost_bags(reverse_graph, "shiny gold")
 
-    # Count how many bags can eventually contain a shiny gold bag
-    p1 = count_outermost_bags(graph, "shiny gold")
-    print(f"[Part1] : {p1}")
+    # Part 2: Build the regular graph and count the total number of bags inside a shiny gold bag
+    graph = build_graph(rules)
+    memo = {}
+    part2_result = count_bags("shiny gold", graph, memo)
+
+    # Output both parts
+    print(f"[Part1] : {part1_result}")
+    print(f"[Part2] : {part2_result}")
 
 
 if __name__ == "__main__":
