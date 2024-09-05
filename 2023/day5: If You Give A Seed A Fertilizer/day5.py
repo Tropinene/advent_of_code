@@ -25,6 +25,15 @@ def main():
         min_location = min(min_location, tmp)
     print(f"[Part1] : {min_location}")
 
+    min_location = 10000000000
+    for idx in range(0, len(num_seeds), 2):
+        for s in range(num_seeds[0], num_seeds[0]+num_seeds[1]+1):
+            tmp = s
+            for m in final_maps:
+                tmp = mapping(tmp, m)
+            min_location = min(min_location, tmp)
+    print(f"[Part2] : {min_location}")
+
 
 if __name__ == '__main__':
     main()
