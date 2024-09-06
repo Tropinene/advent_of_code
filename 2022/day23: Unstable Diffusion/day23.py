@@ -58,6 +58,17 @@ def main():
     p1 = (max_x - min_x + 1) * (max_y - min_y + 1) - len(elfs)
     print(f"[Part1] : {p1}")
 
+    elfs = parse()
+    for idx in range(1000):
+        if idx and idx % 10 == 0:
+            print(idx)
+        new_elfs = move(elfs, d)
+        d = d[1:] + d[:1]
+        if sorted(new_elfs) == sorted(elfs):
+            break
+        elfs = new_elfs
+    print(f"[Part2] : {idx + 1}")
+
 
 if __name__ == '__main__':
     main()
