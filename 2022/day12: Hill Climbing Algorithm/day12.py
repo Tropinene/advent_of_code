@@ -6,6 +6,16 @@ def find_position(heightmap: list, target: str) -> tuple:
                 return row, col
 
 
+def find_start(heightmap: list) -> list:
+    res = []
+    rows, cols = len(heightmap), len(heightmap[0])
+    for row in range(rows):
+        for col in range(cols):
+            if heightmap[row][col] == 'a':
+                res.append((row, col))
+    return res
+
+
 def count_height(inp: str) -> int:
     if inp == 'S':
         return 0
@@ -34,7 +44,7 @@ def bfs(heightmap: list, s: tuple, e: tuple) -> int:
                     visited.add((next_x, next_y))
                     path.append((next_x, next_y, step+1))
 
-    return -1
+    return 10**9
 
 
 def main():
@@ -43,7 +53,12 @@ def main():
 
     p1 = bfs(heightmap, start, end)
     print(f"[Part1] : {p1}")
-    return
+
+    starts = find_start(heightmap)
+    p2 = float('inf')
+    for start in starts:
+        p2 = min(p2, bfs(heightmap, start, end))
+    print(f"[Part2] : {p2}")
 
 
 if __name__ == '__main__':
