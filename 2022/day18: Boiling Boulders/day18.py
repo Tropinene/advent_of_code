@@ -1,5 +1,6 @@
 import itertools
 
+
 def get_neighbors(cube):
     x, y, z = cube
     return [
@@ -28,9 +29,9 @@ def fill_holes(cubes: list):
 
         # 动态计算相邻的6个方向
         for neighbor in get_neighbors(current):
-            if (min_x-1 <= neighbor[0] <= max_x+1 and
-                    min_y-1 <= neighbor[1] <= max_y+1 and
-                    min_z-1 <= neighbor[2] <= max_z+1):
+            if (min_x - 1 <= neighbor[0] <= max_x + 1 and
+                    min_y - 1 <= neighbor[1] <= max_y + 1 and
+                    min_z - 1 <= neighbor[2] <= max_z + 1):
                 stack.append(neighbor)
 
     # 所有不在熔岩块和外部空气中的立方体就是内部的空气
