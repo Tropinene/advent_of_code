@@ -17,7 +17,12 @@ func readNumbers(filename string) ([]int, []int, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
 
 	var nums1, nums2 []int
 	scanner := bufio.NewScanner(file)
