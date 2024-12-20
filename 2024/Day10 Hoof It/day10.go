@@ -28,16 +28,13 @@ func findPath(topmap [][]int, r, c int) int {
 		if visited[key] {
 			return 0
 		}
-
 		// If we reach a peak (9), count it
 		if topmap[curR][curC] == 9 {
 			visited[key] = true
 			return 1
 		}
-
 		visited[key] = true
 		count := 0
-
 		// Try all four directions
 		for _, dir := range directions {
 			newR, newC := curR+dir[0], curC+dir[1]
