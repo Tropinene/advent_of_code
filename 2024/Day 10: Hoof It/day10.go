@@ -68,6 +68,48 @@ func solve1(topmap, trailheads [][]int) int {
 	return ans
 }
 
+func findPath2(topmap [][]int, r, c int) int {
+	m, n := len(topmap), len(topmap[0])
+	directions := [][]int{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
+
+	visited := make([][]bool, m)
+	for i := range visited {
+		visited[i] = make([]bool, n)
+	}
+
+	var dfs func(curR, curC int) int
+	dfs = func(curR, curC int) int {
+		if topmap[curR][curC] == 9 {
+			return 1
+		}
+
+		visited[curR][curC] = true
+		pathCount := 0
+
+		for _, dir := range directions {
+			newR, newC := curR+dir[0], curC+dir[1]
+			if newR < 0 || newR >= m || newC < 0 || newC >= n {
+				continue
+			}
+			if !visited[newR][newC] && topmap[newR][newC] == topmap[curR][curC]+1 {
+				pathCount += dfs(newR, newC)
+			}
+		}
+		visited[curR][curC] = false
+		return pathCount
+	}
+	return dfs(r, c)
+}
+
+func solve2(topmap, trailheads [][]int) int {
+	ans := 0
+	for _, trainhead := range trailheads {
+		r, c := trainhead[0], trainhead[1]
+		ans += findPath2(topmap, r, c)
+	}
+	return ans
+}
+
 func main() {
 	_, filename, _, _ := runtime.Caller(0)
 	dir := filepath.Dir(filename)
@@ -89,4 +131,6 @@ func main() {
 
 	p1 := solve1(topmap, trailheads)
 	fmt.Printf("[Part1] : %d\n", p1)
+	p2 := solve2(topmap, trailheads)
+	fmt.Printf("[Part1] : %d\n", p2)
 }
