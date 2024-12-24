@@ -86,20 +86,61 @@ func solve1(A, B, C int, progs []int) string {
 }
 
 func solve2(B, C int, progs []int) string {
-	A := 216584205000000
-	//   216584205979245
 	var progStr []string
 	for _, p := range progs {
 		progStr = append(progStr, strconv.Itoa(p))
 	}
-	ans := strings.Join(progStr, ",")
-	s := solve1(A, B, C, progs)
+	//ans := strings.Join(progStr, ",")
+	//s := solve1(A, B, C, progs)
 
-	for s != ans {
-		A++
-		s = solve1(A, B, C, progs)
+	startA := 216584200000000
+	//        216584205979245
+	for true {
+		A := startA
+		matchIdx := 0
+		ptr := 0
+		l := len(progs)
+		var output []string
+
+		for ptr < l {
+			ins, op := progs[ptr], progs[ptr+1]
+			if ins == 0 {
+				A = A / (1 << getOP(op, A, B, C))
+			} else if ins == 1 {
+				B ^= op
+			} else if ins == 2 {
+				B = getOP(op, A, B, C) % 8
+			} else if ins == 3 {
+				if A != 0 {
+					ptr = op
+					continue
+				}
+			} else if ins == 4 {
+				B ^= C
+			} else if ins == 5 {
+				tmp := getOP(op, A, B, C) % 8
+				if tmp != progs[matchIdx] {
+					break
+				} else {
+					output = append(output, strconv.Itoa(tmp))
+					matchIdx++
+				}
+			} else if ins == 6 {
+				B = A / (1 << getOP(op, A, B, C))
+			} else if ins == 7 {
+				C = A / (1 << getOP(op, A, B, C))
+			} else {
+
+			}
+			ptr += 2
+		}
+		if matchIdx == len(progStr) {
+			break
+		}
+		startA++
 	}
-	return strconv.Itoa(A)
+
+	return strconv.Itoa(startA)
 }
 
 func main() {
