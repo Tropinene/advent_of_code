@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+type Position struct {
+	x, y int
+}
+
 func readFile(fileName string) []string {
 	data, err := os.ReadFile(fileName)
 	if err != nil {
@@ -17,20 +21,20 @@ func readFile(fileName string) []string {
 	return strings.Split(strings.TrimSpace(string(data)), "\n")
 }
 
-func initGrid(lines []string) ([2]int, [2]int, [][]byte) {
+func initGrid(lines []string) (Position, Position, [][]byte) {
 	grid := make([][]byte, len(lines))
-	var start, end [2]int
+	var start, end Position
 	findS, findE := false, false
 	for i, line := range lines {
 		grid[i] = []byte(line)
 		if !findS || !findE {
 			for j, c := range line {
 				if c == 'S' && !findS {
-					start = [2]int{i, j}
+					start = Position{i, j}
 					findS = true
 				}
 				if c == 'E' && !findE {
-					end = [2]int{i, j}
+					end = Position{i, j}
 					findE = true
 				}
 			}
@@ -39,52 +43,74 @@ func initGrid(lines []string) ([2]int, [2]int, [][]byte) {
 	return start, end, grid
 }
 
-func printGrid(grid [][]byte, visited [][]bool) {
-	for i, row := range grid {
-		for j, c := range row {
-			if visited[i][j] {
-				fmt.Print("X")
-			} else {
-				fmt.Print(string(c))
-			}
-		}
-		fmt.Println()
-	}
-}
-
-func dontCheat(start, end [2]int, grid [][]byte) int {
-	directions := [4][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
-	currX, currY := start[0], start[1]
+func findPath(start, end Position, grid [][]byte, breakWall *Position) int {
+	directions := [][2]int{{0, 1}, {0, -1}, {1, 0}, {-1, 0}}
 	rows, cols := len(grid), len(grid[0])
 
-	var visited [][]bool
-	for i := 0; i < rows; i++ {
-		visited = append(visited, make([]bool, cols))
+	visited := make([][]bool, rows)
+	for i := range visited {
+		visited[i] = make([]bool, cols)
 	}
-	//printGrid(grid, visited)
 
-	steps := 0
-	for !(currX == end[0] && currY == end[1]) {
-		visited[currX][currY] = true
+	var queue []Position
+	var steps []int
+	queue = append(queue, start)
+	steps = append(steps, 0)
+	visited[start.x][start.y] = true
+
+	for len(queue) > 0 {
+		curr := queue[0]
+		currSteps := steps[0]
+		queue = queue[1:]
+		steps = steps[1:]
+
+		if curr == end {
+			return currSteps
+		}
+
 		for _, dir := range directions {
-			nextX, nextY := currX+dir[0], currY+dir[1]
-			if !visited[nextX][nextY] && nextX > 0 && nextX < rows && nextY > 0 && nextY < cols {
-				if grid[nextX][nextY] == '.' || grid[nextX][nextY] == 'E' {
-					currX, currY = nextX, nextY
-					steps += 1
-					break
+			next := Position{curr.x + dir[0], curr.y + dir[1]}
+			if next.x < 0 || next.x >= rows || next.y < 0 || next.y >= cols || visited[next.x][next.y] {
+				continue
+			}
+
+			// Check if this position is where we want to break the wall
+			canMove := grid[next.x][next.y] == '.' || grid[next.x][next.y] == 'E' ||
+				(breakWall != nil && next == *breakWall)
+
+			if canMove {
+				queue = append(queue, next)
+				steps = append(steps, currSteps+1)
+				visited[next.x][next.y] = true
+			}
+		}
+	}
+
+	return -1
+}
+
+func solve1(start, end Position, grid [][]byte) int {
+	ans := 0
+	originalLength := findPath(start, end, grid, nil)
+	rows, cols := len(grid), len(grid[0])
+
+	for i := 0; i < rows; i++ {
+		for j := 0; j < cols; j++ {
+			if grid[i][j] == '#' {
+				breakPos := Position{i, j}
+				newLength := findPath(start, end, grid, &breakPos)
+
+				if newLength != -1 {
+					saved := originalLength - newLength
+					if saved >= 100 {
+						ans += 1
+					}
 				}
 			}
 		}
 	}
-	//printGrid(grid, visited)
-	return steps
-}
 
-func solve1(start, end [2]int, grid [][]byte) int {
-	racetrack := dontCheat(start, end, grid)
-	fmt.Println(racetrack)
-	return 0
+	return ans
 }
 
 func main() {
