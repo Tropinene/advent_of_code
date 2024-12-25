@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 )
 
@@ -72,6 +73,96 @@ func solve1(lines []string) int {
 	return findTriplets(hash)
 }
 
+func findMaxClique(hash map[string][]string) []string {
+	nodes := make([]string, 0)
+	for node := range hash {
+		nodes = append(nodes, node)
+	}
+
+	//for size := len(nodes); size >= 1; size-- {
+	for size := 13; size >= 1; size-- {
+		result := findCliqueSizeK(hash, nodes, size)
+		if len(result) > 0 {
+			return result
+		}
+	}
+	return []string{}
+}
+
+func isValidClique(hash map[string][]string, group []string) bool {
+	for i := 0; i < len(group); i++ {
+		for j := i + 1; j < len(group); j++ {
+			if !checkIfIn(group[j], hash[group[i]]) {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func findCliqueSizeK(hash map[string][]string, nodes []string, k int) []string {
+	var result []string
+	var backtrack func(start int, current []string)
+
+	backtrack = func(start int, current []string) {
+		if len(result) > 0 {
+			return
+		}
+
+		if len(current) == k {
+			if isValidClique(hash, current) {
+				result = append(result, current...)
+			}
+			return
+		}
+
+		if len(current)+(len(nodes)-start) < k {
+			return
+		}
+
+		for i := start; i < len(nodes); i++ {
+			isValid := true
+			for _, node := range current {
+				if !checkIfIn(nodes[i], hash[node]) {
+					isValid = false
+					break
+				}
+			}
+
+			if isValid {
+				newCurrent := append([]string{}, current...)
+				newCurrent = append(newCurrent, nodes[i])
+				backtrack(i+1, newCurrent)
+			}
+		}
+	}
+
+	backtrack(0, []string{})
+	return result
+}
+
+func solve2(lines []string) string {
+	hash := make(map[string][]string)
+	for _, line := range lines {
+		lst := strings.Split(line, "-")
+		if _, ok := hash[lst[0]]; !ok {
+			hash[lst[0]] = []string{lst[1]}
+		} else {
+			hash[lst[0]] = append(hash[lst[0]], lst[1])
+		}
+
+		if _, ok := hash[lst[1]]; !ok {
+			hash[lst[1]] = []string{lst[0]}
+		} else {
+			hash[lst[1]] = append(hash[lst[1]], lst[0])
+		}
+	}
+
+	result := findMaxClique(hash)
+	sort.Sort(sort.StringSlice(result))
+	return strings.Join(result, ",")
+}
+
 func main() {
 	_, filename, _, _ := runtime.Caller(0)
 	dir := filepath.Dir(filename)
@@ -79,4 +170,6 @@ func main() {
 
 	p1 := solve1(lines)
 	fmt.Println("[Part 1]:", p1)
+	p2 := solve2(lines)
+	fmt.Println("[Part 2]:", p2)
 }
