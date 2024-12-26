@@ -49,6 +49,47 @@ func solve1(nums []string, round int) int {
 	return len(nums)
 }
 
+type config struct {
+	value int
+	n     int
+}
+
+func solve2(nums []string, round int) int {
+	cache := make(map[config]int)
+	result := 0
+
+	for _, num := range nums {
+		value, _ := strconv.Atoi(num)
+		result += produce(value, round, cache)
+	}
+
+	return result
+}
+
+func produce(value int, n int, cache map[config]int) int {
+	if n == 0 {
+		return 1
+	}
+	if r, ok := cache[config{value, n}]; ok {
+		return r
+	}
+	if value == 0 {
+		res := produce(1, n-1, cache)
+		cache[config{value, n}] = res
+		return res
+	}
+	if s := strconv.Itoa(value); len(s)%2 == 0 {
+		a, _ := strconv.Atoi(s[:len(s)/2])
+		b, _ := strconv.Atoi(s[len(s)/2:])
+		res := produce(a, n-1, cache) + produce(b, n-1, cache)
+		cache[config{value, n}] = res
+		return res
+	}
+	res := produce(value*2024, n-1, cache)
+	cache[config{value, n}] = res
+	return res
+}
+
 func main() {
 	_, filename, _, _ := runtime.Caller(0)
 	dir := filepath.Dir(filename)
@@ -57,4 +98,6 @@ func main() {
 	numsStr := strings.Split(lines[0], " ")
 	p1 := solve1(numsStr, 25)
 	fmt.Printf("[Part1] : %d\n", p1)
+	p2 := solve2(numsStr, 75)
+	fmt.Printf("[Part2] : %d\n", p2)
 }
