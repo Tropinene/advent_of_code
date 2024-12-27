@@ -55,6 +55,76 @@ func solve1(s string) int {
 	return ans
 }
 
+type blockInfo struct {
+	id, start, len int
+}
+
+func solve2(s string) int {
+	flag, idx := 0, 0
+	var blocks []blockInfo
+	for i, c := range s {
+		l := int(c - '0')
+		if i%2 == 0 {
+			blocks = append(blocks, blockInfo{flag, idx, l})
+			idx += l
+			flag += 1
+		} else {
+			blocks = append(blocks, blockInfo{-1, idx, l})
+			idx += l
+		}
+	}
+
+	for i := len(blocks) - 1; i >= 0; i-- {
+		if blocks[i].id < 0 {
+			continue
+		}
+
+		fileLen := blocks[i].len
+		for j := 0; j < i; j++ {
+			if blocks[j].id == -1 && blocks[j].len >= fileLen {
+				tmp := blockInfo{blocks[i].id, blocks[j].start, fileLen}
+				if blocks[j].len > tmp.len {
+					newSpace := blockInfo{-1, blocks[j].start + fileLen, blocks[j].len - fileLen}
+					blocks[j] = tmp
+					blocks[i].id = -2
+					blocks = append(blocks[:j+1], append([]blockInfo{newSpace}, blocks[j+1:]...)...)
+				} else {
+					blocks[j] = tmp
+					blocks[i].id = -2
+				}
+				break
+			}
+		}
+	}
+
+	checksum := 0
+	pos := 0
+	for _, block := range blocks {
+		if block.id >= 0 {
+			for k := 0; k < block.len; k++ {
+				checksum += pos * block.id
+				pos++
+			}
+		} else {
+			pos += block.len
+		}
+	}
+
+	return checksum
+}
+
+//func printBlocks(blocks []blockInfo) {
+//	res := ""
+//	for _, block := range blocks {
+//		if block.id == -1 || block.id == -2 {
+//			res += strings.Repeat(".", block.len)
+//		} else {
+//			res += strings.Repeat(strconv.Itoa(block.id), block.len)
+//		}
+//	}
+//	fmt.Println(res)
+//}
+
 func main() {
 	_, filename, _, _ := runtime.Caller(0)
 	dir := filepath.Dir(filename)
@@ -62,4 +132,6 @@ func main() {
 
 	p1 := solve1(lines[0])
 	fmt.Println("[Part 1]:", p1)
+	p2 := solve2(lines[0])
+	fmt.Println("[Part 2]:", p2)
 }
