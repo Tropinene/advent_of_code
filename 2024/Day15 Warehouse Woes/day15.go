@@ -159,69 +159,100 @@ func countDisWide(graph [][]byte) int {
 	return count
 }
 
-func solve2(graph [][]byte, moves string) int {
-	expandedGraph := expandMap(graph)
+func affecting(grid [][]byte, x, y int) [][2]int {
+	if grid[x][y] == '.' {
+		return nil
+	} else if grid[x][y] == '[' {
+		return [][2]int{{x, y}, {x, y + 1}}
+	} else if grid[x][y] == ']' {
+		return [][2]int{{x, y}, {x, y - 1}}
+	}
+	return nil
+}
 
-	rows, cols := len(expandedGraph), len(expandedGraph[0])
-	curR, curC := findRobot(expandedGraph)
+func solve2(graph [][]byte, moves string) int {
+	grid := expandMap(graph)
+	//printG(grid)
+	curR, curC := findRobot(grid)
+
+	symToDir := map[rune][2]int{
+		'>': {0, 1},
+		'<': {0, -1},
+		'^': {-1, 0},
+		'v': {1, 0},
+	}
 
 	for _, move := range moves {
-		printG(expandedGraph)
-		fmt.Println()
-		nextC, nextR := curC, curR
-		if move == '<' {
-			tmp := curC - 1
-			for tmp > 0 && (expandedGraph[curR][tmp] == '[' || expandedGraph[curR][tmp] == ']') {
-				tmp -= 1
+		dir := symToDir[move]
+		newR, newC := curR+dir[0], curC+dir[1]
+
+		if dir[0] == 0 || grid[newR][newC] == '.' {
+			finalR, finalC := newR, newC
+
+			for grid[finalR][finalC] != '.' && grid[finalR][finalC] != '#' {
+				finalR, finalC = finalR+dir[0], finalC+dir[1]
 			}
-			if tmp == 0 || expandedGraph[curR][tmp] == '#' {
-				continue
-			} else {
-				for tmp < curC {
-					expandedGraph[curR][tmp] = expandedGraph[curR][tmp+1]
-					tmp += 1
+
+			if grid[finalR][finalC] != '#' {
+				for finalR-dir[0] != curR || finalC-dir[1] != curC {
+					grid[finalR][finalC] = grid[finalR-dir[0]][finalC-dir[1]]
+					finalR, finalC = finalR-dir[0], finalC-dir[1]
 				}
-				nextC -= 1
+
+				grid[newR][newC] = '@'
+				grid[curR][curC] = '.'
+				curR, curC = newR, newC
 			}
-		} else if move == '>' {
-			tmp := curC + 1
-			for tmp < cols && (expandedGraph[curR][tmp] == '[' || expandedGraph[curR][tmp] == ']') {
-				tmp += 1
-			}
-			if tmp == cols || expandedGraph[curR][tmp] == '#' {
-				continue
-			} else {
-				for tmp > curC {
-					expandedGraph[curR][tmp] = expandedGraph[curR][tmp-1]
-					tmp -= 1
+		} else if grid[newR][newC] == '#' {
+			continue
+		} else {
+			var affectings [][][2]int
+			firstAffecting := affecting(grid, newR, newC)
+			affectings = append(affectings, firstAffecting)
+			bad := false
+
+			for len(affectings[len(affectings)-1]) > 0 {
+				var newAffect [][2]int
+				seen := make(map[[2]int]bool)
+				for _, pos := range affectings[len(affectings)-1] {
+					x, y := pos[0], pos[1]
+					if grid[x+dir[0]][y] == '#' {
+						bad = true
+						break
+					}
+					affected := affecting(grid, x+dir[0], y)
+					for _, newPos := range affected {
+						if !seen[newPos] {
+							seen[newPos] = true
+							newAffect = append(newAffect, newPos)
+						}
+					}
 				}
-				nextC += 1
+				if bad {
+					break
+				}
+				affectings = append(affectings, newAffect)
 			}
-		} else if move == '^' {
-			tmp := curR - 1
-			for tmp > 0 && (expandedGraph[tmp][curC] == '[' || expandedGraph[tmp][curC] == ']') {
-				tmp -= 1
-			}
-			if tmp == 0 || expandedGraph[tmp][curC] == '#' {
-				continue
-			} else {
-				// todo: fix this
-			}
-		} else if move == 'v' {
-			tmp := curR + 1
-			for tmp < rows && (expandedGraph[tmp][curC] == '[' || expandedGraph[tmp][curC] == ']') {
-				tmp += 1
-			}
-			if tmp == rows || expandedGraph[tmp][curC] == '#' {
-				continue
-			} else {
-				// todo fix this
+
+			if !bad {
+				for i := len(affectings) - 1; i >= 0; i-- {
+					for _, pos := range affectings[i] {
+						x, y := pos[0], pos[1]
+						grid[x+dir[0]][y] = grid[x][y]
+						grid[x][y] = '.'
+					}
+				}
+				grid[newR][newC] = '@'
+				grid[curR][curC] = '.'
+				curR, curC = newR, newC
 			}
 		}
-		expandedGraph[curR][curC] = '.'
-		curR, curC = nextR, nextC
+		//fmt.Println("Move:", string(move))
+		//printG(grid)
 	}
-	return countDisWide(expandedGraph)
+	//printG(grid)
+
+	return countDisWide(grid)
 }
 
 func main() {
@@ -233,22 +264,14 @@ func main() {
 	for i, str := range graphStrs {
 		graph[i] = []byte(str)
 	}
+	moves = strings.ReplaceAll(moves, "\n", "")
 
 	p1 := solve1(graph, moves)
 	fmt.Println("[Part 1]:", p1)
-	//p2 := solve2(graph, moves)
-	tmpG := [][]byte{
-		[]byte("####################"),
-		[]byte("##[].......[].[][]##"),
-		[]byte("##[]...........[].##"),
-		[]byte("##[]........[][][]##"),
-		[]byte("##[]......[]....[]##"),
-		[]byte("##..##......[]....##"),
-		[]byte("##..[]............##"),
-		[]byte("##..@......[].[][]##"),
-		[]byte("##......[][]..[]..##"),
-		[]byte("####################"),
+
+	for i, str := range graphStrs {
+		graph[i] = []byte(str)
 	}
-	p2 := countDisWide(tmpG)
+	p2 := solve2(graph, moves)
 	fmt.Println("[Part 2]:", p2)
 }
