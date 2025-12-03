@@ -1,83 +1,126 @@
-def process_rule_body(body_str: str) -> list:
-    res = []
-    body_lst = body_str.split(',')
-    for item in body_lst:
-        if ':' in item:
-            condition, entry = item.split(':')
-            if '<' in condition:
-                name, num = condition.split('<')
-                res.append((name, '<', int(num), entry))
+def parse_input(filename):
+    with open(filename, 'r') as f:
+        content = f.read().strip()
+
+    blocks = content.split('\n\n')
+    workflow_lines = blocks[0].split('\n')
+    part_lines = blocks[1].split('\n')
+
+    workflows = {}
+    for line in workflow_lines:
+        name, rest = line[:-1].split('{')
+        rules_raw = rest.split(',')
+        rules = []
+        for rule_str in rules_raw:
+            if ':' in rule_str:
+                condition, target = rule_str.split(':')
+                if '<' in condition:
+                    cat, val = condition.split('<')
+                    op = '<'
+                else:
+                    cat, val = condition.split('>')
+                    op = '>'
+                rules.append({'type': 'cmp', 'cat': cat, 'op': op, 'val': int(val), 'target': target})
             else:
-                name, num = condition.split('>')
-                res.append((name, '>', int(num), entry))
-        else:
-            res.append(item)
-    return res
+                rules.append({'type': 'jump', 'target': rule_str})
+        workflows[name] = rules
 
+    parts = []
+    for line in part_lines:
+        segments = line[1:-1].split(',')
+        part = {}
+        for segment in segments:
+            k, v = segment.split('=')
+            part[k] = int(v)
+        parts.append(part)
 
-def process_workflow(workflow_str: str) -> dict:
-    res = {}
-    items = workflow_str.split(',')
-    for item in items:
-        name, value = item.split('=')
-        res[name] = int(value)
-    return res
+    return workflows, parts
 
-
-def parse_file():
-    lines = open('input.txt', 'r').read()
-    part1, part2 = lines.split('\n\n')
-
-    unprocessed_rules = part1.split('\n')
-    rules = {}
-    for line in unprocessed_rules:
-        name, body = line.split('{')
-        rule_body = process_rule_body(body[:-1])
-        rules[name] = rule_body
-
-    origin_workflow = [line[1:-1] for line in part2.split('\n')]
-    workflows = []
-    for workflow in origin_workflow:
-        workflows.append(process_workflow(workflow))
-    return rules, workflows
-
-
-def check(rules: dict, workflow: dict) -> bool:
-    def process_rule(rule):
-        if type(rule) == str:
-            return rule
-        variable, comparator, value, next_rule = rule
-        if (comparator == '<' and workflow[variable] < value) or (comparator == '>' and workflow[variable] > value):
-            return next_rule
-        return None
-
-    cur_rule = rules['in']
-    while True:
-        for item in cur_rule:
-            result = process_rule(item)
-            if result is None:
-                continue
-            if result == 'A':
-                return True
-            elif result == 'R':
-                return False
-            else:
-                cur_rule = rules[result]
+def run_part1(workflows, parts):
+    total = 0
+    for part in parts:
+        curr = 'in'
+        while curr not in ('A', 'R'):
+            rules = workflows[curr]
+            matched = False
+            for rule in rules:
+                if rule['type'] == 'jump':
+                    curr = rule['target']
+                    matched = True
+                    break
+                else:
+                    val = part[rule['cat']]
+                    limit = rule['val']
+                    if rule['op'] == '<':
+                        if val < limit:
+                            curr = rule['target']
+                            matched = True
+                            break
+                    else:
+                        if val > limit:
+                            curr = rule['target']
+                            matched = True
+                            break
+            if not matched:
                 break
+        
+        if curr == 'A':
+            total += sum(part.values())
+    return total
 
+def run_part2(workflows):
+    def count(curr, ranges):
+        if curr == 'R':
+            return 0
+        if curr == 'A':
+            product = 1
+            for lo, hi in ranges.values():
+                product *= (hi - lo + 1)
+            return product
 
-def main():
-    rules, workflows = parse_file()
+        total = 0
+        curr_ranges = ranges.copy()
 
-    p1 = 0
-    for workflow in workflows:
-        if check(rules, workflow):
-            p1 += sum(item for item in workflow.values())
-    print(f"[Part1] : {p1}")
+        for rule in workflows[curr]:
+            if rule['type'] == 'jump':
+                total += count(rule['target'], curr_ranges)
+                break
+            
+            cat = rule['cat']
+            op = rule['op']
+            val = rule['val']
+            target = rule['target']
+            lo, hi = curr_ranges[cat]
+            
+            true_range, false_range = None, None
+            
+            if op == '<':
+                if lo < val:
+                    true_range = (lo, min(hi, val - 1))
+                if hi >= val:
+                    false_range = (max(lo, val), hi)
+            else:
+                if hi > val:
+                    true_range = (max(lo, val + 1), hi)
+                if lo <= val:
+                    false_range = (lo, min(hi, val))
+            
+            if true_range:
+                next_ranges = curr_ranges.copy()
+                next_ranges[cat] = true_range
+                total += count(target, next_ranges)
+            
+            if false_range:
+                curr_ranges[cat] = false_range
+            else:
+                break
+        return total
 
-    # todo Part2 使用广度优先算法应该可解
+    initial_ranges = {k: (1, 4000) for k in 'xmas'}
+    return count('in', initial_ranges)
 
-
-if __name__ == '__main__':
-    main()
-
+if __name__ == "__main__":
+    workflows, parts = parse_input('input.txt')
+    if workflows:
+        print(f"[Part1]: {run_part1(workflows, parts)}")
+        print(f"[Part2]: {run_part2(workflows)}")
